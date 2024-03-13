@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:things.db
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    use-generated-keys: true
+  mapper-locations: classpath*:/mapper/**/*.xml
