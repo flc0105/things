@@ -26,6 +26,8 @@ public class Item {
     @TableField(value = "purchase_date")
     private String purchaseDate;
 
+    private String remark;
+
     @TableField(exist = false)
     private String ownershipDuration;
 
