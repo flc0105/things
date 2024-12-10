@@ -1,12 +1,12 @@
 package flc.things.entity;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import flc.things.annotation.Translator;
 import lombok.Data;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -28,13 +28,23 @@ public class Item {
 
     private String remark;
 
+    @Translator(targetField = "statusStr", dictCode = "ITEM_STATUS")
+    private String status;
+
+    // 新增字段用于存储翻译后的值
+    @TableField(exist = false)
+    private String statusStr;
+
     @TableField(exist = false)
     private String ownershipDuration;
 
-    private static final Logger logger = LoggerFactory.getLogger(Item.class);
 
+    @TableField(value = "category_id")
+    private Long categoryId;
 
-    // 省略其他方法
+    @TableField(exist = false)
+    private Category category;
+
 
     // 添加计算拥有时间的方法
     public void calculateOwnershipDuration() {
@@ -45,15 +55,8 @@ public class Item {
             long days = duration.toDays();
             this.ownershipDuration = days + " days";
         } catch (Exception e) {
-            logger.error("Error calculating ownership duration for item with purchase date: {}", purchaseDate, e);
             this.ownershipDuration = null;
         }
     }
-
-
-
-    // getters and setters
-
-    // Add constructors as needed
 }
 

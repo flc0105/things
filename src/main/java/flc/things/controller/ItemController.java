@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,5 +43,11 @@ public class ItemController {
     public ResponseEntity<Void> deleteItem(@PathVariable Long id) {
         itemService.deleteItem(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/total-value")
+    public ResponseEntity<Double> getTotalValue() {
+        double totalValue = itemService.getTotalValue();
+        return ResponseEntity.ok(totalValue);
     }
 }
