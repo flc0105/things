@@ -2,6 +2,7 @@ package flc.things.service;
 
 import flc.things.entity.Category;
 import flc.things.entity.Item;
+import flc.things.mapper.AttachmentMapper;
 import flc.things.mapper.CategoryMapper;
 import flc.things.mapper.ItemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class ItemService extends BaseService<Item> {
     @Autowired
     private CategoryMapper categoryMapper;
 
+//    @Autowired
+//    private AttachmentService attachmentService;
+
     public ItemService(ItemMapper itemMapper) {
         super(itemMapper);
     }
@@ -35,6 +39,9 @@ public class ItemService extends BaseService<Item> {
         List<Item> items = getAll();
         items.forEach(Item::calculateOwnershipDuration);
         items.forEach(this::populateCategory);
+//        items.forEach((item -> {
+//            item.setAttachment(attachmentService.getAttachmentById(item.getAttachmentId()));
+//        }));
         return items;
     }
 

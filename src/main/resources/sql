@@ -29,3 +29,13 @@ create table items
     category_id   INTEGER,
     status        TEXT
 );
+
+create table attachments
+(
+    id        integer not null
+        primary key autoincrement,
+    file_path             text    not null,
+    original_file_name      text    not null,
+    item_id               integer    not null,
+    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
+);
