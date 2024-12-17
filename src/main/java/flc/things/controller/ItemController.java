@@ -1,7 +1,9 @@
 package flc.things.controller;
 
 import flc.things.entity.Item;
+import flc.things.entity.TimelineEvent;
 import flc.things.service.ItemService;
+import flc.things.service.TimelineEventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,9 @@ public class ItemController {
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private TimelineEventService timelineEventService;
 
     @GetMapping
     public List<Item> getAllItems() {
@@ -30,7 +35,9 @@ public class ItemController {
 
     @PostMapping
     public Item addItem(@RequestBody Item item) {
-        return itemService.addItem(item);
+        Item itemAdded = itemService.addItem(item);
+        timelineEventService.addEvent(item.getId(), item.getPurchaseDate(), "购买");
+        return itemAdded;
     }
 
     @PutMapping("/{id}")
@@ -49,5 +56,10 @@ public class ItemController {
     public ResponseEntity<Double> getTotalValue() {
         double totalValue = itemService.getTotalValue();
         return ResponseEntity.ok(totalValue);
+    }
+
+    @GetMapping("/timeline/{id}")
+    public ResponseEntity<List<TimelineEvent>> getTimelineEvent(@PathVariable Long id) {
+        return ResponseEntity.ok(timelineEventService.getTimelineEvents(id));
     }
 }

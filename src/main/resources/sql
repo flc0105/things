@@ -32,10 +32,17 @@ create table items
 
 create table attachments
 (
-    id        integer not null
+    id                 integer not null
         primary key autoincrement,
-    file_path             text    not null,
-    original_file_name      text    not null,
-    item_id               integer    not null,
-    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
+    file_path          text    not null,
+    original_file_name text    not null
 );
+
+create table timeline_events
+(
+    id      integer not null primary key autoincrement,
+    item_id integer,
+    date    text,
+    event   text
+);
+

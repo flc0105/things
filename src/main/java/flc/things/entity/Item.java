@@ -53,6 +53,8 @@ public class Item {
     @TableField(exist = false)
     private Category category;
 
+    @TableField(exist = false)
+    private List<TimelineEvent> timelineEvents;
 
 //    // 使用@JsonIgnore注解避免序列化时出现无限递归
 //    @JsonIgnore

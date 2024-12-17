@@ -5,6 +5,7 @@ import flc.things.entity.Item;
 import flc.things.mapper.AttachmentMapper;
 import flc.things.mapper.CategoryMapper;
 import flc.things.mapper.ItemMapper;
+import flc.things.mapper.TimelineEventMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,12 @@ public class ItemService extends BaseService<Item> {
 
     @Autowired
     private CategoryMapper categoryMapper;
+
+    @Autowired
+    private TimelineEventMapper timelineEventMapper;
+
+    @Autowired
+    private TimelineEventService timelineEventService;
 
 //    @Autowired
 //    private AttachmentService attachmentService;
@@ -42,6 +49,9 @@ public class ItemService extends BaseService<Item> {
 //        items.forEach((item -> {
 //            item.setAttachment(attachmentService.getAttachmentById(item.getAttachmentId()));
 //        }));
+        items.forEach((item -> {
+            item.setTimelineEvents(timelineEventService.getTimelineEvents(item.getId()));
+        }));
         return items;
     }
 
