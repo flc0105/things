@@ -27,7 +27,8 @@ create table items
     purchase_date TEXT,
     remark        text,
     category_id   INTEGER,
-    status        TEXT
+    status        TEXT,
+    attachment_id INTEGER
 );
 
 create table attachments

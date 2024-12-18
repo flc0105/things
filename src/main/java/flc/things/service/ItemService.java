@@ -1,5 +1,6 @@
 package flc.things.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import flc.things.entity.Category;
 import flc.things.entity.Item;
 import flc.things.mapper.AttachmentMapper;
@@ -46,9 +47,6 @@ public class ItemService extends BaseService<Item> {
         List<Item> items = getAll();
         items.forEach(Item::calculateOwnershipDuration);
         items.forEach(this::populateCategory);
-//        items.forEach((item -> {
-//            item.setAttachment(attachmentService.getAttachmentById(item.getAttachmentId()));
-//        }));
         items.forEach((item -> {
             item.setTimelineEvents(timelineEventService.getTimelineEvents(item.getId()));
         }));
@@ -76,7 +74,7 @@ public class ItemService extends BaseService<Item> {
     }
 
     public double getTotalValue() {
-        List<Item> items = itemMapper.selectList(null);
+        List<Item> items = itemMapper.selectList(new LambdaQueryWrapper<Item>().eq(Item::getStatus, "NORMAL"));
         return items.stream().mapToDouble(Item::getPrice).sum();
     }
 

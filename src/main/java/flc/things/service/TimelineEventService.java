@@ -17,10 +17,9 @@ public class TimelineEventService {
     private TimelineEventMapper timelineEventMapper;
 
     public List<TimelineEvent> getTimelineEvents(Long itemId) {
-        // 这里应该有一个数据库查询来获取事件列表
-        // 例如，使用MyBatis-Plus的查询
         QueryWrapper<TimelineEvent> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("item_id", itemId);
+        queryWrapper.orderByDesc("date");
         return timelineEventMapper.selectList(queryWrapper);
     }
 
