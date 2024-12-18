@@ -45,11 +45,11 @@ public class ItemService extends BaseService<Item> {
 
     public List<Item> getAllItems() {
         List<Item> items = getAll();
-        items.forEach(Item::calculateOwnershipDuration);
-        items.forEach(this::populateCategory);
         items.forEach((item -> {
             item.setTimelineEvents(timelineEventService.getTimelineEvents(item.getId()));
         }));
+        items.forEach(Item::calculateOwnershipDuration);
+        items.forEach(this::populateCategory);
         return items;
     }
 
