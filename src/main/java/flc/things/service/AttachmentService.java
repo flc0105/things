@@ -1,17 +1,13 @@
 package flc.things.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import flc.things.entity.Attachment;
-import flc.things.entity.Item;
 import flc.things.mapper.AttachmentMapper;
-import flc.things.mapper.ItemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +20,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.io.File;
 
 @Service
 public class AttachmentService {
@@ -64,13 +61,21 @@ public class AttachmentService {
         // 创建Attachment实体并保存到数据库
         Attachment attachment = new Attachment();
 //        attachment.setItemId(itemId); // 设置关联的物品ID
-        attachment.setFilePath(destinationFile.toString()); // 设置文件存储路径
+        attachment.setFilePath(relativize(uploadPath, destinationFile.toFile())); // 设置文件存储路径
+//        attachment.setFilePath(destinationFile.toString()); // 设置文件存储路径
         attachment.setOriginalFileName(originalFileName); // 设置原始文件名
         // ... 省略其他属性设置和数据库保存操作
         attachmentMapper.insert(attachment);
 
         return attachment;
     }
+
+
+    public static String relativize(String uploadPath, File file) {
+        String path = new File(uploadPath).toURI().relativize(file.toURI()).getPath();
+        return "/" + (path.endsWith("/") ? path.substring(0, path.length() - 1) : path);
+    }
+
 
     public ResponseEntity<InputStreamResource> downloadAttachment(Long id) throws IOException {
         // 根据文件ID获取Attachment实体
@@ -80,12 +85,14 @@ public class AttachmentService {
         }
 
         // 构建文件路径
-        Path path = Paths.get(attachment.getFilePath());
+//        Path path = Paths.get(attachment.getFilePath());
+        Path path = Paths.get(uploadPath, attachment.getFilePath());
 
         // 检查文件是否存在
         if (!Files.exists(path)) {
             return ResponseEntity.notFound().build();
         }
+
 
         // 创建InputStreamResource
         InputStreamResource resource = new InputStreamResource(Files.newInputStream(path));
@@ -102,12 +109,8 @@ public class AttachmentService {
                 .body(resource);
     }
 
-
     public Attachment getAttachmentById(Long id) {
         return attachmentMapper.selectById(id);
-//        QueryWrapper<Attachment> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.eq("item_id", itemId); // 查询条件：item_id等于传入的itemId
-//        return attachmentMapper.selectList(queryWrapper); // 使用MyBatis-Plus的list方法执行查询
     }
 
     public List<Attachment> getAllAttachments() {
