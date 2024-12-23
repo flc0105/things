@@ -48,7 +48,8 @@ public class ItemService extends BaseService<Item> {
         items.forEach((item -> {
             item.setTimelineEvents(timelineEventService.getTimelineEvents(item.getId()));
         }));
-        items.forEach(Item::calculateOwnershipDuration);
+//        items.forEach(Item::calculateOwnershipDuration);
+//        items.forEach(Item::calculateAverageDailyPrice);
         items.forEach(this::populateCategory);
         return items;
     }

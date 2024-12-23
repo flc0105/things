@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import flc.things.annotation.Translator;
 import lombok.Data;
 
+import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,21 +52,51 @@ public class Item {
     @TableField(exist = false)
     private List<TimelineEvent> timelineEvents;
 
+    @TableField(exist = false)
+    private Double averageDailyPrice;
 
-    // 添加计算拥有时间的方法
-    public void calculateOwnershipDuration() {
 
-
+//
+//    public void calculateOwnershipDuration() {
+//
+//
+////        try {
+////            LocalDateTime now = LocalDateTime.now();
+////            LocalDate parsedDate = LocalDate.parse(purchaseDate);
+////            Duration duration = Duration.between(parsedDate.atStartOfDay(), now);
+////            long days = duration.toDays();
+////            this.ownershipDuration = days + " days";
+////        } catch (Exception e) {
+////            this.ownershipDuration = null;
+////        }
+//
 //        try {
-//            LocalDateTime now = LocalDateTime.now();
-//            LocalDate parsedDate = LocalDate.parse(purchaseDate);
-//            Duration duration = Duration.between(parsedDate.atStartOfDay(), now);
-//            long days = duration.toDays();
-//            this.ownershipDuration = days + " days";
+//            if (status.equals("SOLD")) {
+//                // 如果状态为“出售”，计算从购买日期到时间轴上第一个（最新的）事件的天数
+//                if (timelineEvents != null && !timelineEvents.isEmpty()) {
+//                    // 假设 TimelineEvent 有一个方法获取事件日期
+//                    LocalDate latestEventDate = LocalDate.parse(timelineEvents.get(0).getDate());
+//                    LocalDate purchaseDate = LocalDate.parse(this.purchaseDate);
+//                    Duration duration = Duration.between(purchaseDate.atStartOfDay(), latestEventDate.atStartOfDay());
+//                    long days = duration.toDays();
+//                    this.ownershipDuration = days + " days";
+//                } else {
+//                    this.ownershipDuration = null;
+//                }
+//            } else {
+//                LocalDateTime now = LocalDateTime.now();
+//                LocalDate parsedDate = LocalDate.parse(purchaseDate);
+//                Duration duration = Duration.between(parsedDate.atStartOfDay(), now);
+//                long days = duration.toDays();
+//                this.ownershipDuration = days + " days";
+//            }
 //        } catch (Exception e) {
 //            this.ownershipDuration = null;
 //        }
+//    }
 
+
+    public Long calcOwnershipDuration() {
         try {
             if (status.equals("SOLD")) {
                 // 如果状态为“出售”，计算从购买日期到时间轴上第一个（最新的）事件的天数
@@ -75,19 +106,70 @@ public class Item {
                     LocalDate purchaseDate = LocalDate.parse(this.purchaseDate);
                     Duration duration = Duration.between(purchaseDate.atStartOfDay(), latestEventDate.atStartOfDay());
                     long days = duration.toDays();
-                    this.ownershipDuration = days + " days";
+                    return days;
                 } else {
-                    this.ownershipDuration = null;
+                    return null;
                 }
             } else {
                 LocalDateTime now = LocalDateTime.now();
                 LocalDate parsedDate = LocalDate.parse(purchaseDate);
                 Duration duration = Duration.between(parsedDate.atStartOfDay(), now);
                 long days = duration.toDays();
-                this.ownershipDuration = days + " days";
+                return days;
             }
         } catch (Exception e) {
-            this.ownershipDuration = null;
+            return null;
+        }
+    }
+
+
+    public String getOwnershipDuration() {
+        Long days = calcOwnershipDuration();
+        if (days == null) {
+//            this.ownershipDuration= null;
+            return null;
+        }
+        return days + " days";
+//        this.ownershipDuration = days + " days";
+    }
+
+    // 计算日均价格的方法
+//    public void calculateAverageDailyPrice() {
+//        try {
+//            Long duration = calcOwnershipDuration();
+//            // 确保购买日期不为空且价格大于0
+//            if (duration != null && price != null && price > 0) {
+//                if (duration > 0) {
+//                    averageDailyPrice = price / duration;
+//                } else {
+//                    averageDailyPrice = null;
+//                }
+//            } else {
+//                averageDailyPrice = null;
+//            }
+//        } catch (Exception e) {
+//            averageDailyPrice = null;
+//        }
+//    }
+
+    public Double getAverageDailyPrice() {
+        try {
+            Long duration = calcOwnershipDuration();
+            // 确保购买日期不为空且价格大于0
+            if (duration != null && price != null && price > 0) {
+                if (duration > 0) {
+                    double dailyPrice = price / duration;
+                    // 格式化结果为保留两位小数
+                    DecimalFormat decimalFormat = new DecimalFormat("#.00");
+                    return Double.parseDouble(decimalFormat.format(dailyPrice));
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
         }
     }
 
