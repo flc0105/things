@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import flc.things.annotation.Translator;
+import flc.things.service.CategoryService;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.DecimalFormat;
 import java.time.Duration;
@@ -55,46 +57,8 @@ public class Item {
     @TableField(exist = false)
     private Double averageDailyPrice;
 
-
-//
-//    public void calculateOwnershipDuration() {
-//
-//
-////        try {
-////            LocalDateTime now = LocalDateTime.now();
-////            LocalDate parsedDate = LocalDate.parse(purchaseDate);
-////            Duration duration = Duration.between(parsedDate.atStartOfDay(), now);
-////            long days = duration.toDays();
-////            this.ownershipDuration = days + " days";
-////        } catch (Exception e) {
-////            this.ownershipDuration = null;
-////        }
-//
-//        try {
-//            if (status.equals("SOLD")) {
-//                // 如果状态为“出售”，计算从购买日期到时间轴上第一个（最新的）事件的天数
-//                if (timelineEvents != null && !timelineEvents.isEmpty()) {
-//                    // 假设 TimelineEvent 有一个方法获取事件日期
-//                    LocalDate latestEventDate = LocalDate.parse(timelineEvents.get(0).getDate());
-//                    LocalDate purchaseDate = LocalDate.parse(this.purchaseDate);
-//                    Duration duration = Duration.between(purchaseDate.atStartOfDay(), latestEventDate.atStartOfDay());
-//                    long days = duration.toDays();
-//                    this.ownershipDuration = days + " days";
-//                } else {
-//                    this.ownershipDuration = null;
-//                }
-//            } else {
-//                LocalDateTime now = LocalDateTime.now();
-//                LocalDate parsedDate = LocalDate.parse(purchaseDate);
-//                Duration duration = Duration.between(parsedDate.atStartOfDay(), now);
-//                long days = duration.toDays();
-//                this.ownershipDuration = days + " days";
-//            }
-//        } catch (Exception e) {
-//            this.ownershipDuration = null;
-//        }
-//    }
-
+    @TableField(exist = false)
+    private List<ItemCustomFieldValue> customFieldValues;
 
     public Long calcOwnershipDuration() {
         try {
@@ -105,8 +69,7 @@ public class Item {
                     LocalDate latestEventDate = LocalDate.parse(timelineEvents.get(0).getDate());
                     LocalDate purchaseDate = LocalDate.parse(this.purchaseDate);
                     Duration duration = Duration.between(purchaseDate.atStartOfDay(), latestEventDate.atStartOfDay());
-                    long days = duration.toDays();
-                    return days;
+                    return duration.toDays();
                 } else {
                     return null;
                 }
@@ -114,43 +77,20 @@ public class Item {
                 LocalDateTime now = LocalDateTime.now();
                 LocalDate parsedDate = LocalDate.parse(purchaseDate);
                 Duration duration = Duration.between(parsedDate.atStartOfDay(), now);
-                long days = duration.toDays();
-                return days;
+                return duration.toDays();
             }
         } catch (Exception e) {
             return null;
         }
     }
 
-
     public String getOwnershipDuration() {
         Long days = calcOwnershipDuration();
         if (days == null) {
-//            this.ownershipDuration= null;
             return null;
         }
         return days + " days";
-//        this.ownershipDuration = days + " days";
     }
-
-    // 计算日均价格的方法
-//    public void calculateAverageDailyPrice() {
-//        try {
-//            Long duration = calcOwnershipDuration();
-//            // 确保购买日期不为空且价格大于0
-//            if (duration != null && price != null && price > 0) {
-//                if (duration > 0) {
-//                    averageDailyPrice = price / duration;
-//                } else {
-//                    averageDailyPrice = null;
-//                }
-//            } else {
-//                averageDailyPrice = null;
-//            }
-//        } catch (Exception e) {
-//            averageDailyPrice = null;
-//        }
-//    }
 
     public Double getAverageDailyPrice() {
         try {

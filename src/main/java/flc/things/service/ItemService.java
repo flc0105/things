@@ -3,10 +3,8 @@ package flc.things.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import flc.things.entity.Category;
 import flc.things.entity.Item;
-import flc.things.mapper.AttachmentMapper;
 import flc.things.mapper.CategoryMapper;
 import flc.things.mapper.ItemMapper;
-import flc.things.mapper.TimelineEventMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +21,11 @@ public class ItemService extends BaseService<Item> {
     private CategoryMapper categoryMapper;
 
     @Autowired
-    private TimelineEventMapper timelineEventMapper;
-
-    @Autowired
     private TimelineEventService timelineEventService;
 
-//    @Autowired
-//    private AttachmentService attachmentService;
+    @Autowired
+    private CustomFieldService customFieldService;
+
 
     public ItemService(ItemMapper itemMapper) {
         super(itemMapper);
@@ -47,9 +43,9 @@ public class ItemService extends BaseService<Item> {
         List<Item> items = getAll();
         items.forEach((item -> {
             item.setTimelineEvents(timelineEventService.getTimelineEvents(item.getId()));
+            item.setCustomFieldValues(customFieldService.getCustomFieldValueListByItemId(item.getId()));
         }));
 //        items.forEach(Item::calculateOwnershipDuration);
-//        items.forEach(Item::calculateAverageDailyPrice);
         items.forEach(this::populateCategory);
         return items;
     }

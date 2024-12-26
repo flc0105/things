@@ -47,3 +47,21 @@ create table timeline_events
     event   text
 );
 
+create table custom_fields
+(
+    id         INTEGER not null
+        primary key autoincrement,
+    field_name TEXT
+);
+
+create table item_custom_field_values
+(
+    id              INTEGER not null
+        primary key autoincrement,
+    item_id         INTEGER,
+    custom_field_id INTEGER,
+    value           TEXT
+);
+
+
+
