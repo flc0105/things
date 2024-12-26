@@ -26,4 +26,9 @@ public class TimelineEventController {
     public void addEvent(@RequestBody TimelineEvent timelineEvent) {
         timelineEventService.addEvent(timelineEvent.getItemId(), timelineEvent.getDate(), timelineEvent.getEvent());
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteEvent(@PathVariable Long id) {
+        timelineEventService.deleteEvent(id);
+    }
 }

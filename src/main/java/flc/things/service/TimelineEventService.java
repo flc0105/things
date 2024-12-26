@@ -30,4 +30,8 @@ public class TimelineEventService {
         timelineEvent.setEvent(eventDescription);
         timelineEventMapper.insert(timelineEvent);
     }
+
+    public void deleteEvent(Long eventId) {
+        timelineEventMapper.deleteById(eventId);
+    }
 }
