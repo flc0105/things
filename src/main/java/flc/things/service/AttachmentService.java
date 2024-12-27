@@ -116,6 +116,17 @@ public class AttachmentService {
     public List<Attachment> getAllAttachments() {
         return attachmentMapper.selectList(null);
     }
+
+    public void deleteAttachment(Long attachId) {
+        Attachment attach = getAttachmentById(attachId);
+        Path path = Paths.get(uploadPath, attach.getFilePath());
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        attachmentMapper.deleteById(attachId);
+    }
 }
 
 

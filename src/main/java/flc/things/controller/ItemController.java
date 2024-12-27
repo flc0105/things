@@ -46,8 +46,9 @@ public class ItemController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Item> updateItem(@PathVariable Long id, @RequestBody Item newItem) {
-        Optional<Item> updatedItem = itemService.updateItem(id, newItem);
-        return updatedItem.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(itemService.updateItem(id, newItem));
+//        Optional<Item> updatedItem = itemService.updateItem(id, newItem);
+//        return updatedItem.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

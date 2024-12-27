@@ -56,4 +56,9 @@ public class AttachmentController {
         Optional<Attachment> attachment = Optional.ofNullable(attachmentService.getAttachmentById(id));
         return attachment.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteAttachment(@PathVariable Long id) {
+       attachmentService.deleteAttachment(id);
+    }
 }

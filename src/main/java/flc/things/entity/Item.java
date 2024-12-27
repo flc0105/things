@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import flc.things.annotation.Translator;
+import flc.things.service.AttachmentService;
 import flc.things.service.CategoryService;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,9 @@ public class Item {
 
     @TableField(exist = false)
     private List<ItemCustomFieldValue> customFieldValues;
+
+    @TableField(exist = false)
+    private Attachment attachment;
 
     public Long calcOwnershipDuration() {
         try {

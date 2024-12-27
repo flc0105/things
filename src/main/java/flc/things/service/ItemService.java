@@ -1,6 +1,7 @@
 package flc.things.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import flc.things.entity.Category;
 import flc.things.entity.Item;
 import flc.things.mapper.CategoryMapper;
@@ -26,6 +27,9 @@ public class ItemService extends BaseService<Item> {
     @Autowired
     private CustomFieldService customFieldService;
 
+    @Autowired
+    private AttachmentService attachmentService;
+
 
     public ItemService(ItemMapper itemMapper) {
         super(itemMapper);
@@ -43,7 +47,8 @@ public class ItemService extends BaseService<Item> {
         List<Item> items = getAll();
         items.forEach((item -> {
             item.setTimelineEvents(timelineEventService.getTimelineEvents(item.getId()));
-            item.setCustomFieldValues(customFieldService.getCustomFieldValueListByItemId(item.getId()));
+            item.setAttachment(attachmentService.getAttachmentById(item.getAttachmentId()));
+//            item.setCustomFieldValues(customFieldService.getCustomFieldValueListByItemId(item.getId()));
         }));
 //        items.forEach(Item::calculateOwnershipDuration);
         items.forEach(this::populateCategory);
@@ -60,10 +65,16 @@ public class ItemService extends BaseService<Item> {
         return item;
     }
 
-    public Optional<Item> updateItem(Long id, Item newItem) {
+    public Item updateItem(Long id, Item newItem) {
         newItem.setId(id);
-        int result = itemMapper.updateById(newItem);
-        return result > 0 ? Optional.of(newItem) : Optional.empty();
+
+        UpdateWrapper<Item> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", id);
+        updateWrapper.set(true, "attachment_id", newItem.getAttachmentId());
+        itemMapper.update(newItem, updateWrapper);
+//        int result = itemMapper.updateById(newItem);
+        return newItem;
+//        return result > 0 ? Optional.of(newItem) : Optional.empty();
     }
 
     public void deleteItem(Long id) {
