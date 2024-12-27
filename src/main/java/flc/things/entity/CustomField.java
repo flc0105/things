@@ -16,7 +16,11 @@ public class CustomField {
     @TableField(value = "field_name")
     private String fieldName;
 
+    @TableField(value = "field_type")
+    private String fieldType;
 
+    @TableField(value = "formula")
+    private String formula;
 
 
 }

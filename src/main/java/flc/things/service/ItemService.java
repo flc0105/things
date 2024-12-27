@@ -25,9 +25,6 @@ public class ItemService extends BaseService<Item> {
     private TimelineEventService timelineEventService;
 
     @Autowired
-    private CustomFieldService customFieldService;
-
-    @Autowired
     private AttachmentService attachmentService;
 
 

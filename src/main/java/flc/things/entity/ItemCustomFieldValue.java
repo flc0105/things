@@ -26,5 +26,8 @@ public class ItemCustomFieldValue {
     private CustomField customField;
 
     @TableField(exist = false)
+    private Item item;
+
+    @TableField(exist = false)
     private String fieldName;
 }
