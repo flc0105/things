@@ -2,6 +2,7 @@ package flc.things.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import flc.things.entity.CustomField;
 import flc.things.entity.Item;
 import flc.things.entity.ItemCustomFieldValue;
@@ -116,6 +117,12 @@ public class CustomFieldService {
         for (ItemCustomFieldValue value : values) {
             // 设置自定义字段
             value.setCustomField(customFieldMapper.selectById(value.getCustomFieldId()));
+
+            if (value.getCustomField() == null) {
+                System.out.println(value + "字段不存在，可能已经删除。");
+                continue;
+            }
+
             // 设置物品信息
             value.setItem(itemService.getItemById(value.getItemId()).get());
             // 存储键值对信息
@@ -180,4 +187,16 @@ public class CustomFieldService {
     }
 
 
+    public CustomField update(Long id, CustomField newCustomField) {
+        newCustomField.setId(id);
+        int result = customFieldMapper.updateById(newCustomField);
+        return newCustomField;
+//
+    }
+
+    public void delete(Long id) {
+        customFieldMapper.deleteById(id);
+        // 删除自定义字段同时删除关联表中的数据
+        itemCustomFieldValueMapper.delete(new LambdaQueryWrapper<ItemCustomFieldValue>().eq(ItemCustomFieldValue::getCustomFieldId, id));
+    }
 }
