@@ -51,7 +51,9 @@ create table custom_fields
 (
     id         INTEGER not null
         primary key autoincrement,
-    field_name TEXT
+    field_name TEXT,
+    field_type TEXT,
+    formula TEXT
 );
 
 create table item_custom_field_values

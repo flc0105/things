@@ -28,6 +28,13 @@ public class CustomFieldController {
 //        return updatedItem.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/{id}/enabled/{enabled}")
+    public ResponseEntity<CustomField> setEnabled(@PathVariable Long id, @PathVariable boolean enabled) {
+        return ResponseEntity.ok(customFieldService.setEnabled(id, enabled));
+//        Optional<Item> updatedItem = itemService.updateItem(id, newItem);
+//        return updatedItem.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         customFieldService.delete(id);
@@ -38,5 +45,6 @@ public class CustomFieldController {
     public List<CustomField> getAllCustomFields() {
         return customFieldService.getAllCustomFields();
     }
+
 
 }

@@ -54,7 +54,13 @@ public class ItemService extends BaseService<Item> {
 
     public Optional<Item> getItemById(Long id) {
 //        return Optional.ofNullable(itemMapper.selectById(id));
-        return Optional.ofNullable(getOne(id));
+
+
+        Item item = getOne(id);
+        item.setTimelineEvents(timelineEventService.getTimelineEvents(item.getId()));
+        item.setAttachment(attachmentService.getAttachmentById(item.getAttachmentId()));
+        populateCategory(item);
+        return Optional.ofNullable(item);
     }
 
     public Item addItem(Item item) {

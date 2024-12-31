@@ -22,5 +22,8 @@ public class CustomField {
     @TableField(value = "formula")
     private String formula;
 
+    @TableField(value = "enabled")
+    private boolean enabled;
+
 
 }

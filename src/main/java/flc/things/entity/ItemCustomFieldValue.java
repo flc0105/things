@@ -30,4 +30,7 @@ public class ItemCustomFieldValue {
 
     @TableField(exist = false)
     private String fieldName;
+//
+//    @TableField(exist = false)
+//    private String errorInfo;
 }
