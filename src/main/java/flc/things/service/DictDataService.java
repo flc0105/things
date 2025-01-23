@@ -15,27 +15,13 @@ public class DictDataService {
     @Autowired
     private DictDataMapper dictDataMapper;
 
-    public List<DictData> getAllDictData() {
-        return dictDataMapper.selectList(null);
-    }
-
-    public DictData getDictDataById(Long id) {
-        return dictDataMapper.selectById(id);
-    }
-
     public DictData addDictData(DictData dictData) {
         dictDataMapper.insert(dictData);
         return dictData;
     }
 
-    public DictData updateDictData(Long id, DictData newDictData) {
-        newDictData.setId(id);
-        dictDataMapper.updateById(newDictData);
-        return new DictData();
-    }
-
-    public void deleteDictData(Long id) {
-        dictDataMapper.deleteById(id);
+    public List<DictData> getAllDictData() {
+        return dictDataMapper.selectList(null);
     }
 
     public List<DictData> getDictDataByDictCode(String dictCode) {
@@ -48,6 +34,5 @@ public class DictDataService {
                 .eq(DictData::getDictCode, dictCode)
                 .eq(DictData::getCode, code));
     }
-
 
 }

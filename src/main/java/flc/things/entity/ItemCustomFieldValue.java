@@ -10,6 +10,15 @@ import lombok.Data;
 @TableName("item_custom_field_values")
 public class ItemCustomFieldValue {
 
+    public ItemCustomFieldValue() {
+    }
+
+    public ItemCustomFieldValue(Long itemId, Long customFieldId, String value) {
+        this.itemId = itemId;
+        this.customFieldId = customFieldId;
+        this.value = value;
+    }
+
     @TableId(type = IdType.AUTO)
     private Long id;
 
@@ -21,16 +30,4 @@ public class ItemCustomFieldValue {
 
     @TableField("value")
     private String value;
-
-    @TableField(exist = false)
-    private CustomField customField;
-
-    @TableField(exist = false)
-    private Item item;
-
-    @TableField(exist = false)
-    private String fieldName;
-//
-//    @TableField(exist = false)
-//    private String errorInfo;
 }

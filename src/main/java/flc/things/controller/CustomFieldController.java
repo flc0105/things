@@ -1,6 +1,7 @@
 package flc.things.controller;
 
 import flc.things.entity.CustomField;
+import flc.things.entity.ItemCustomFieldValue;
 import flc.things.service.CustomFieldService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,20 @@ public class CustomFieldController {
         return customFieldService.addCustomField(customField);
     }
 
+    @PostMapping("/values")
+    public ResponseEntity<Boolean> addOrUpdateCustomFieldValue(@RequestBody List<ItemCustomFieldValue> itemCustomFieldValue) {
+        return ResponseEntity.ok(customFieldService.addOrUpdateCustomFieldValue(itemCustomFieldValue));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        customFieldService.deleteCustomField(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<CustomField> update(@PathVariable Long id, @RequestBody CustomField newCustomField) {
-        return ResponseEntity.ok(customFieldService.update(id, newCustomField));
+        return ResponseEntity.ok(customFieldService.updateCustomField(id, newCustomField));
     }
 
     @PutMapping("/{id}/enabled/{enabled}")
@@ -30,21 +42,14 @@ public class CustomFieldController {
         return ResponseEntity.ok(customFieldService.setEnabled(id, enabled));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        customFieldService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping
     public List<CustomField> getAllCustomFields() {
         return customFieldService.getAllCustomFields();
     }
 
-    @GetMapping("/suggestions/{customFieldId}")
-    public List<String> getSuggestions(@PathVariable Long customFieldId) {
-        return customFieldService.getSuggestions(customFieldId);
+
+    @GetMapping("/item/{id}")
+    public ResponseEntity<List<ItemCustomFieldValue>> getCustomFieldValueByItemId(@PathVariable Long id) {
+        return ResponseEntity.ok(customFieldService.getCustomFieldValueByItemId(id));
     }
-
-
 }

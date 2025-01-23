@@ -14,14 +14,14 @@ public class DictDataController {
     @Autowired
     private DictDataService dictDataService;
 
-    @GetMapping
-    public List<DictData> getAllDictData() {
-        return dictDataService.getAllDictData();
-    }
-
     @PostMapping
     public DictData addDictData(@RequestBody DictData dictData) {
         return dictDataService.addDictData(dictData);
+    }
+
+    @GetMapping
+    public List<DictData> getAllDictData() {
+        return dictDataService.getAllDictData();
     }
 
     @GetMapping("getByDictCode")

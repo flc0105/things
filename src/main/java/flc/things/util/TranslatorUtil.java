@@ -33,7 +33,6 @@ public class TranslatorUtil {
         return fields;
     }
 
-
     public static <T> void translate(T item) {
         List<Field> fields = getAllFields(item.getClass());
         List<Field> formatterFields = fields.stream()
@@ -55,8 +54,7 @@ public class TranslatorUtil {
                 strField.set(item, dictName);
             }
         } catch (IllegalAccessException | NoSuchFieldException e) {
-            // Handle exception appropriately
-            e.printStackTrace();
+            System.err.println("Translate error: " + e.getMessage());
         }
     }
 

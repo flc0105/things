@@ -24,6 +24,4 @@ public class CustomField {
 
     @TableField(value = "enabled")
     private boolean enabled;
-
-
 }

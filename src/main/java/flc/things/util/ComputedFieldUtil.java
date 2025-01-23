@@ -1,13 +1,9 @@
 package flc.things.util;
 
-import flc.things.entity.ItemCustomFieldValue;
-
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ComputedFieldUtil {
 
@@ -22,5 +18,4 @@ public class ComputedFieldUtil {
         // 执行表达式
         return engine.eval(expression);
     }
-
 }

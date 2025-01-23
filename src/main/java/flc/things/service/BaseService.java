@@ -1,18 +1,14 @@
 package flc.things.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import flc.things.util.TranslatorUtil;
 
 import java.util.List;
 
 public abstract class BaseService<T> {
-
-    // 假设有一个通用的Mapper接口，所有具体的Mapper应该实现这个接口
     protected BaseMapper<T> baseMapper;
 
-    // 构造函数，用于注入具体的Mapper和翻译工具类
     public BaseService(BaseMapper<T> baseMapper) {
         this.baseMapper = baseMapper;
     }
@@ -24,8 +20,8 @@ public abstract class BaseService<T> {
         return entities;
     }
 
-    public List<T> list(LambdaQueryWrapper<T> qw) {
-        List<T> entities = baseMapper.selectList(qw);
+    public List<T> list(LambdaQueryWrapper<T> lambdaQueryWrapper) {
+        List<T> entities = baseMapper.selectList(lambdaQueryWrapper);
         entities.forEach(TranslatorUtil::translate);
         return entities;
     }

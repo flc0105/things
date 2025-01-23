@@ -2,7 +2,6 @@ package flc.things.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import flc.things.entity.CustomField;
 import flc.things.entity.Item;
 import flc.things.entity.ItemCustomFieldValue;
@@ -14,11 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class CustomFieldService {
@@ -27,15 +22,29 @@ public class CustomFieldService {
     private CustomFieldMapper customFieldMapper;
 
     @Autowired
-    private ItemService itemService;
+    private ItemCustomFieldValueMapper itemCustomFieldValueMapper;
 
     @Autowired
-    private ItemCustomFieldValueMapper itemCustomFieldValueMapper;
+    private ItemService itemService;
 
     public CustomField addCustomField(CustomField customField) {
         customField.setEnabled(true);
         customFieldMapper.insert(customField);
         return customField;
+    }
+
+    public void deleteCustomField(Long id) {
+        int i = customFieldMapper.deleteById(id);
+        if (i > 0) {
+            // 删除自定义字段同时删除关联表中的数据
+            itemCustomFieldValueMapper.delete(new LambdaQueryWrapper<ItemCustomFieldValue>().eq(ItemCustomFieldValue::getCustomFieldId, id));
+        }
+    }
+
+    public CustomField updateCustomField(Long id, CustomField newCustomField) {
+        newCustomField.setId(id);
+        customFieldMapper.updateById(newCustomField);
+        return newCustomField;
     }
 
     public CustomField setEnabled(Long id, boolean isEnabled) {
@@ -48,13 +57,16 @@ public class CustomFieldService {
         return null;
     }
 
-    public List<CustomField> getAllCustomFields() { //目前自定义字段的启停用只影响这个方法
-//        return customFieldMapper.selectList(new LambdaQueryWrapper<CustomField>().eq(CustomField::isEnabled, true));
+    public List<CustomField> getAllCustomFields() {
         return customFieldMapper.selectList(null);
     }
 
+    public List<CustomField> getEnabledCustomFields() {
+        return customFieldMapper.selectList(new LambdaQueryWrapper<CustomField>().eq(CustomField::isEnabled, true));
+    }
+
     @Transactional
-    public boolean addOrUpdateCustomField(List<ItemCustomFieldValue> icfvs) {
+    public boolean addOrUpdateCustomFieldValue(List<ItemCustomFieldValue> icfvs) {
         // 查询是否存在相同itemId和customFieldId的记录
         for (ItemCustomFieldValue icfv : icfvs) {
             ItemCustomFieldValue existingRecord = itemCustomFieldValueMapper.selectOne(
@@ -62,14 +74,13 @@ public class CustomFieldService {
                             .eq("item_id", icfv.getItemId())
                             .eq("custom_field_id", icfv.getCustomFieldId())
             );
-
             // 如果存在，则更新value
             if (existingRecord != null) {
                 existingRecord.setValue(icfv.getValue());
                 itemCustomFieldValueMapper.updateById(existingRecord);
             } else {
                 // 如果不存在，则创建新的ItemCustomFieldValue对象并插入
-                // 判断如果是公式类型不生成新纪录
+                // 判断如果是公式类型不生成新记录
                 CustomField customField = customFieldMapper.selectById(icfv.getCustomFieldId());
                 if (Objects.equals(customField.getFieldType(), CustomFieldType.CODE.getCode())) {
                     continue;
@@ -80,92 +91,48 @@ public class CustomFieldService {
         return true;
     }
 
-    public List<ItemCustomFieldValue> getCustomFieldValueListByItemId(Long itemId) {
-        // 查询所有该物品的自定义字段
-        List<ItemCustomFieldValue> values = itemCustomFieldValueMapper.selectList(new LambdaQueryWrapper<ItemCustomFieldValue>().eq(ItemCustomFieldValue::getItemId, itemId));
+    public List<ItemCustomFieldValue> getCustomFieldValueByItemId(Long itemId) {
+        // 初始化返回值列表
+        List<ItemCustomFieldValue> result = new ArrayList<>();
+        // 初始化自定义字段上下文列表
+        Map<String, Object> customFieldsContext = new HashMap<>();
 
-        // 新建一个map用来存储自定义字段键值对
-        Map<String, Object> customFieldValues = new HashMap<>();
+        // 查询物品信息作为上下文
+        Optional<Item> itemOptional = itemService.getItemById(itemId);
+        if (!itemOptional.isPresent()) {
+            return result; // 如果物品不存在，直接返回空列表
+        }
+        Item itemContext = itemOptional.get();
 
-        // 遍历该物品所有自定义字段
-        for (ItemCustomFieldValue value : values) {
-            // 设置自定义字段
-            value.setCustomField(customFieldMapper.selectById(value.getCustomFieldId()));
-
-            if (value.getCustomField() == null) {
-                System.out.println(value + "字段不存在，可能已经删除。");
+        // 先查询关联表中该物品的自定义字段
+        List<ItemCustomFieldValue> customFieldValues = itemCustomFieldValueMapper.selectList(new LambdaQueryWrapper<ItemCustomFieldValue>().eq(ItemCustomFieldValue::getItemId, itemId));
+        for (ItemCustomFieldValue value : customFieldValues) {
+            CustomField customField = customFieldMapper.selectById(value.getCustomFieldId());
+            if (customField == null) {
+                System.out.println("Custom field with ID " + value.getCustomFieldId() + " does not exist, it may have been deleted.");
                 continue;
             }
-
-            // 设置物品信息
-            value.setItem(itemService.getItemById(value.getItemId()).get());
-            // 存储键值对信息
-            customFieldValues.put(value.getCustomField().getFieldName(), value.getValue());
+            customFieldsContext.put(customField.getFieldName(), value.getValue()); // 存储键值对信息作为上下文
+            result.add(value);
         }
 
-        // 查询关联物品信息
-        Item item = itemService.getItemById(itemId).get();
-
-        // 查询所有需要计算的公式自定义字段
+        // 再查询所有公式字段
         List<CustomField> computedCustomFields = customFieldMapper.selectList(new LambdaQueryWrapper<CustomField>().eq(CustomField::getFieldType, CustomFieldType.CODE.getCode()));
         for (CustomField computedCustomField : computedCustomFields) {
             // 获取公式
             String expression = computedCustomField.getFormula();
-            // 在公式上下文存储物品本身信息和自定义字段信息
+            // 存储物品信息和自定义字段上下文信息
             Map<String, Object> context = new HashMap<>();
-            context.put("item", item);
-            context.put("customFields", customFieldValues);
-
+            context.put("item", itemContext);
+            context.put("customFields", customFieldsContext);
             try {
-                // 在自定义字段返回结果添加计算后的值
                 ComputedFieldUtil util = new ComputedFieldUtil();
                 Object o = util.evaluateExpression(expression, context);
-                ItemCustomFieldValue newComputedFieldVal = new ItemCustomFieldValue();
-                newComputedFieldVal.setItemId(itemId);
-                newComputedFieldVal.setValue(String.valueOf(o));
-                newComputedFieldVal.setCustomFieldId(computedCustomField.getId());
-//                newComputedFieldVal.setCustomField(customFieldMapper.selectById(newComputedFieldVal.getCustomFieldId()));
-                values.add(newComputedFieldVal);
+                result.add(new ItemCustomFieldValue(itemId, computedCustomField.getId(), String.valueOf(o)));
             } catch (Exception e) {
-                ItemCustomFieldValue newComputedFieldVal = new ItemCustomFieldValue();
-                newComputedFieldVal.setItemId(itemId);
-                newComputedFieldVal.setValue("运算失败(" +  e.getMessage()+")");
-//                newComputedFieldVal.setErrorInfo(e.getMessage());
-                newComputedFieldVal.setCustomFieldId(computedCustomField.getId());
-//                newComputedFieldVal.setCustomField(customFieldMapper.selectById(newComputedFieldVal.getCustomFieldId()));
-                values.add(newComputedFieldVal);
+                result.add(new ItemCustomFieldValue(itemId, computedCustomField.getId(), "运算失败(" + e.getMessage() + ")"));
             }
         }
-
-        return values;
-    }
-
-
-    public CustomField update(Long id, CustomField newCustomField) {
-        newCustomField.setId(id);
-        int result = customFieldMapper.updateById(newCustomField);
-        return newCustomField;
-//
-    }
-
-    public void delete(Long id) {
-        customFieldMapper.deleteById(id);
-        // 删除自定义字段同时删除关联表中的数据
-        itemCustomFieldValueMapper.delete(new LambdaQueryWrapper<ItemCustomFieldValue>().eq(ItemCustomFieldValue::getCustomFieldId, id));
-    }
-
-    public List<String> getSuggestions(Long id) {
-        QueryWrapper<CustomField> wrapper = new QueryWrapper<>();
-        wrapper.eq("id", id);
-        wrapper.eq("field_type", CustomFieldType.TEXT.getCode());
-        CustomField customField = customFieldMapper.selectOne(wrapper);
-
-        QueryWrapper<ItemCustomFieldValue> wrapper1 = new QueryWrapper<>();
-        wrapper1.eq("custom_field_id", id);
-        List<ItemCustomFieldValue> values = itemCustomFieldValueMapper.selectList(wrapper1);
-
-        List<String> valList = values.stream().map(ItemCustomFieldValue::getValue).distinct().collect(Collectors.toList());
-        return valList;
-
+        return result;
     }
 }

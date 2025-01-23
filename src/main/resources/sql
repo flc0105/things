@@ -28,8 +28,11 @@ create table items
     remark        text,
     category_id   INTEGER,
     status        TEXT,
-    attachment_id INTEGER
+    attachment_id INTEGER,
+    parent_id     INTEGER
 );
+
+
 
 create table attachments
 (
@@ -39,6 +42,8 @@ create table attachments
     original_file_name text    not null
 );
 
+
+
 create table timeline_events
 (
     id      integer not null primary key autoincrement,
@@ -46,6 +51,8 @@ create table timeline_events
     date    text,
     event   text
 );
+
+
 
 create table custom_fields
 (
@@ -57,6 +64,8 @@ create table custom_fields
     enabled INTEGER
 );
 
+
+
 create table item_custom_field_values
 (
     id              INTEGER not null
@@ -65,6 +74,3 @@ create table item_custom_field_values
     custom_field_id INTEGER,
     value           TEXT
 );
-
-
-

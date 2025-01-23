@@ -13,10 +13,4 @@ public class Category {
     private Long id;
 
     private String name;
-
-    // Add other fields as needed
-
-    // getters and setters
-
-    // Add constructors as needed
 }

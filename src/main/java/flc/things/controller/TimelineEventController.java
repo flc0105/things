@@ -1,19 +1,12 @@
 package flc.things.controller;
 
-import flc.things.entity.Attachment;
-import flc.things.entity.Item;
 import flc.things.entity.TimelineEvent;
-import flc.things.service.AttachmentService;
 import flc.things.service.TimelineEventService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/timeline")
@@ -21,6 +14,9 @@ public class TimelineEventController {
 
     @Autowired
     private TimelineEventService timelineEventService;
+
+//    @Autowired
+//    private ItemService itemService;
 
     @PostMapping
     public void addEvent(@RequestBody TimelineEvent timelineEvent) {
@@ -31,4 +27,17 @@ public class TimelineEventController {
     public void deleteEvent(@PathVariable Long id) {
         timelineEventService.deleteEvent(id);
     }
+
+    @GetMapping("/item/{id}")
+    public ResponseEntity<List<TimelineEvent>> getTimelineEvent(@PathVariable Long id) {
+        return ResponseEntity.ok(timelineEventService.getTimelineEvents(id));
+    }
+
+//    @PostMapping("/init")
+//    public void init() {
+//        List<Item> allItems = itemService.getAllItems();
+//        for (Item item : allItems) {
+//            timelineEventService.addEvent(item.getId(), item.getPurchaseDate(), "购买");
+//        }
+//    }
 }
