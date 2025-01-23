@@ -62,6 +62,11 @@ public class ItemController {
         return ResponseEntity.ok(timelineEventService.getTimelineEvents(id));
     }
 
+    @GetMapping("/subItems/{id}")
+    public ResponseEntity<List<Item>> getSubItems(@PathVariable Long id) {
+        return ResponseEntity.ok(itemService.getSubItems(id));
+    }
+
     @GetMapping("/customFields/{id}")
     public ResponseEntity<List<ItemCustomFieldValue>> getCustomFields(@PathVariable Long id) {
         return ResponseEntity.ok(customFieldService.getCustomFieldValueListByItemId(id));

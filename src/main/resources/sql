@@ -53,7 +53,8 @@ create table custom_fields
         primary key autoincrement,
     field_name TEXT,
     field_type TEXT,
-    formula TEXT
+    formula TEXT,
+    enabled INTEGER
 );
 
 create table item_custom_field_values

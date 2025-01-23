@@ -1,5 +1,7 @@
 package flc.things.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import flc.things.util.TranslatorUtil;
 
@@ -18,6 +20,12 @@ public abstract class BaseService<T> {
     // 通用的查询方法，查询所有记录，并对每个记录调用translate方法
     public List<T> getAll() {
         List<T> entities = baseMapper.selectList(null);
+        entities.forEach(TranslatorUtil::translate);
+        return entities;
+    }
+
+    public List<T> list(LambdaQueryWrapper<T> qw) {
+        List<T> entities = baseMapper.selectList(qw);
         entities.forEach(TranslatorUtil::translate);
         return entities;
     }

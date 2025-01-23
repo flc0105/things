@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomFieldService {
@@ -151,5 +152,20 @@ public class CustomFieldService {
         customFieldMapper.deleteById(id);
         // 删除自定义字段同时删除关联表中的数据
         itemCustomFieldValueMapper.delete(new LambdaQueryWrapper<ItemCustomFieldValue>().eq(ItemCustomFieldValue::getCustomFieldId, id));
+    }
+
+    public List<String> getSuggestions(Long id) {
+        QueryWrapper<CustomField> wrapper = new QueryWrapper<>();
+        wrapper.eq("id", id);
+        wrapper.eq("field_type", CustomFieldType.TEXT.getCode());
+        CustomField customField = customFieldMapper.selectOne(wrapper);
+
+        QueryWrapper<ItemCustomFieldValue> wrapper1 = new QueryWrapper<>();
+        wrapper1.eq("custom_field_id", id);
+        List<ItemCustomFieldValue> values = itemCustomFieldValueMapper.selectList(wrapper1);
+
+        List<String> valList = values.stream().map(ItemCustomFieldValue::getValue).distinct().collect(Collectors.toList());
+        return valList;
+
     }
 }

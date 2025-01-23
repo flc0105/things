@@ -1,9 +1,11 @@
 package flc.things.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import flc.things.entity.Category;
 import flc.things.entity.Item;
+import flc.things.entity.TimelineEvent;
 import flc.things.mapper.CategoryMapper;
 import flc.things.mapper.ItemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,16 +43,31 @@ public class ItemService extends BaseService<Item> {
     }
 
     public List<Item> getAllItems() {
-        List<Item> items = getAll();
+        List<Item> items = list(new LambdaQueryWrapper<Item>().isNull(Item::getParentId));
         items.forEach((item -> {
             item.setTimelineEvents(timelineEventService.getTimelineEvents(item.getId()));
             item.setAttachment(attachmentService.getAttachmentById(item.getAttachmentId()));
-//            item.setCustomFieldValues(customFieldService.getCustomFieldValueListByItemId(item.getId()));
+            item.setSubItems(list(new LambdaQueryWrapper<Item>().eq(Item::getParentId, item.getId())));
+
+            // 如果有子物品，需要加上子物品的价格
+            if (item.getSubItems() != null && !item.getSubItems().isEmpty()) {
+                Double totalPrice = item.getPrice();
+                for (Item subItem : item.getSubItems()) {
+                    totalPrice += subItem.getPrice();
+                }
+                item.setPrice(totalPrice);
+            }
         }));
-//        items.forEach(Item::calculateOwnershipDuration);
+
         items.forEach(this::populateCategory);
         return items;
     }
+
+
+    public List<Item> getSubItems(Long itemId) {
+        return list(new LambdaQueryWrapper<Item>().eq(Item::getParentId, itemId));
+    }
+
 
     public Optional<Item> getItemById(Long id) {
 //        return Optional.ofNullable(itemMapper.selectById(id));
@@ -59,6 +76,7 @@ public class ItemService extends BaseService<Item> {
         Item item = getOne(id);
         item.setTimelineEvents(timelineEventService.getTimelineEvents(item.getId()));
         item.setAttachment(attachmentService.getAttachmentById(item.getAttachmentId()));
+        item.setSubItems(list(new LambdaQueryWrapper<Item>().eq(Item::getParentId, id)));
         populateCategory(item);
         return Optional.ofNullable(item);
     }
@@ -84,9 +102,5 @@ public class ItemService extends BaseService<Item> {
         itemMapper.deleteById(id);
     }
 
-    public double getTotalValue() {
-        List<Item> items = itemMapper.selectList(new LambdaQueryWrapper<Item>().eq(Item::getStatus, "NORMAL"));
-        return items.stream().mapToDouble(Item::getPrice).sum();
-    }
 
 }

@@ -49,11 +49,18 @@ public class Item {
     @TableField(value = "attachment_id")
     private Long attachmentId;
 
+    @TableField(value = "parent_id")
+    private Long parentId;
+
+
     @TableField(exist = false)
     private Category category;
 
     @TableField(exist = false)
     private List<TimelineEvent> timelineEvents;
+
+    @TableField(exist = false)
+    private List<Item> subItems;
 
     @TableField(exist = false)
     private Double averageDailyPrice;
