@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomFieldService {
@@ -132,6 +133,49 @@ public class CustomFieldService {
             } catch (Exception e) {
                 result.add(new ItemCustomFieldValue(itemId, computedCustomField.getId(), "运算失败(" + e.getMessage() + ")"));
             }
+        }
+        return result;
+    }
+
+    // 查询指定customField所有已有的值
+    public List<ItemCustomFieldValue> findAllValuesByCustomFieldId(Long customFieldId) {
+        List<ItemCustomFieldValue> allValues = itemCustomFieldValueMapper.selectList(new LambdaQueryWrapper<ItemCustomFieldValue>().eq(ItemCustomFieldValue::getCustomFieldId, customFieldId));
+        // 使用Map来过滤出唯一的value，并保留第一个出现的ItemCustomFieldValue对象
+        Map<String, ItemCustomFieldValue> uniqueValuesMap = allValues.stream()
+                .collect(Collectors.toMap(ItemCustomFieldValue::getValue, value -> value, (existing, replacement) -> existing));
+
+        // 返回唯一value的列表
+        return new ArrayList<>(uniqueValuesMap.values());
+//        return uniqueValuesMap.values().stream().collect(Collectors.toList());
+    }
+
+    public Map<String, List<String>> findAllFieldNamesAndValues() {
+        // 查询所有记录
+        List<ItemCustomFieldValue> allValues = itemCustomFieldValueMapper.selectList(null);
+
+        // 使用Map来收集每个customFieldId的所有value
+        Map<Long, Set<String>> groupedValuesMap = allValues.stream()
+                .collect(Collectors.groupingBy(
+                        ItemCustomFieldValue::getCustomFieldId, // 分组依据是customFieldId
+                        Collectors.mapping(ItemCustomFieldValue::getValue, Collectors.toSet()) // 收集唯一的value
+                ));
+
+        // 将Map的键转换为String类型
+        Map<String, List<String>> result = new HashMap<>();
+        groupedValuesMap.forEach((customFieldId, values) -> result.put(String.valueOf(customFieldId), new ArrayList<>(values)));
+        return result;
+    }
+
+    public List<Item> getItemsByCustomFieldIdAndValue(String customFieldId, String fieldValue) {
+        List<ItemCustomFieldValue> itemCustomFieldValues = itemCustomFieldValueMapper.selectList(new LambdaQueryWrapper<ItemCustomFieldValue>().eq(ItemCustomFieldValue::getCustomFieldId, customFieldId).eq(ItemCustomFieldValue::getValue, fieldValue));
+        List<Item> result = new ArrayList<>();
+        for (ItemCustomFieldValue value : itemCustomFieldValues) {
+            Long itemId = value.getItemId();
+            Optional<Item> itemOptional = itemService.getItemById(itemId);
+            itemOptional.ifPresent(result::add);
+//            if (itemOptional.isPresent()) {
+//                result.add(itemOptional.get());
+//            }
         }
         return result;
     }

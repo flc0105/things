@@ -1,6 +1,7 @@
 package flc.things.controller;
 
 import flc.things.entity.CustomField;
+import flc.things.entity.Item;
 import flc.things.entity.ItemCustomFieldValue;
 import flc.things.service.CustomFieldService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/custom_fields")
@@ -51,5 +53,15 @@ public class CustomFieldController {
     @GetMapping("/item/{id}")
     public ResponseEntity<List<ItemCustomFieldValue>> getCustomFieldValueByItemId(@PathVariable Long id) {
         return ResponseEntity.ok(customFieldService.getCustomFieldValueByItemId(id));
+    }
+
+    @GetMapping("/values")
+    public Map<String, List<String>> getAllValues() {
+        return customFieldService.findAllFieldNamesAndValues();
+    }
+
+    @GetMapping("/items")
+    public List<Item> getItemsByCustomFieldIdAndValue(@RequestParam  Map<String, String> map) {
+        return customFieldService.getItemsByCustomFieldIdAndValue(map.get("fieldId"), map.get("fieldValue"));
     }
 }
