@@ -59,6 +59,9 @@ public class Item {
     private List<Item> subItems;
 
     @TableField(exist = false)
+    private List<Item> children;
+
+    @TableField(exist = false)
     private Double averageDailyPrice;
 
     @TableField(exist = false)

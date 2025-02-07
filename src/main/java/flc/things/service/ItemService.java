@@ -55,7 +55,9 @@ public class ItemService extends BaseService<Item> {
         items.forEach((item -> {
             item.setTimelineEvents(timelineEventService.getTimelineEvents(item.getId()));
             item.setAttachment(attachmentService.getAttachmentById(item.getAttachmentId()));
-            item.setSubItems(getSubItems(item.getId()));
+            List<Item> subItems = getSubItems(item.getId());
+            item.setSubItems(subItems);
+            item.setChildren(subItems);
             setTotalPrice(item);
         }));
         items.forEach(this::populateCategory);
