@@ -26,6 +26,9 @@ public class ItemService extends BaseService<Item> {
     @Autowired
     private AttachmentService attachmentService;
 
+    @Autowired
+    private CustomFieldItemRelationService customFieldItemRelationService;
+
 
     public ItemService(ItemMapper itemMapper) {
         super(itemMapper);
@@ -33,11 +36,12 @@ public class ItemService extends BaseService<Item> {
 
     public Item addItem(Item item) {
         itemMapper.insert(item);
-        timelineEventService.addEvent(item.getId(), item.getPurchaseDate(), "购买");
+        timelineEventService.addEvent(item.getId(), item.getPurchaseDate(), "购买", "PURCHASE");
         return item;
     }
 
     public void deleteItem(Long id) {
+        customFieldItemRelationService.deleteDataByItemId(id);
         itemMapper.deleteById(id);
     }
 

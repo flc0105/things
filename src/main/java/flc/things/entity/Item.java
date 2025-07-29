@@ -71,6 +71,7 @@ public class Item {
         try {
             if (status.equals("SOLD")) {
                 // 如果状态为“出售”，计算从购买日期到时间轴上第一个（最新的）事件的天数
+                //TODO eventType为SALE
                 if (timelineEvents != null && !timelineEvents.isEmpty()) {
                     // 假设 TimelineEvent 有一个方法获取事件日期
                     LocalDate latestEventDate = LocalDate.parse(timelineEvents.get(0).getDate());

@@ -25,6 +25,9 @@ public class CustomFieldService {
     @Autowired
     private ItemCustomFieldValueMapper itemCustomFieldValueMapper;
 
+//    @Autowired
+//    private ItemServiceImpl itemService;
+
     @Autowired
     private ItemService itemService;
 
@@ -48,23 +51,11 @@ public class CustomFieldService {
         return newCustomField;
     }
 
-    public CustomField setEnabled(Long id, boolean isEnabled) {
-        CustomField customField = customFieldMapper.selectById(id);
-        if (customField != null) {
-            customField.setEnabled(isEnabled);
-            customFieldMapper.updateById(customField);
-            return customField;
-        }
-        return null;
-    }
 
     public List<CustomField> getAllCustomFields() {
         return customFieldMapper.selectList(null);
     }
 
-    public List<CustomField> getEnabledCustomFields() {
-        return customFieldMapper.selectList(new LambdaQueryWrapper<CustomField>().eq(CustomField::isEnabled, true));
-    }
 
     @Transactional
     public boolean addOrUpdateCustomFieldValue(List<ItemCustomFieldValue> icfvs) {
@@ -129,6 +120,11 @@ public class CustomFieldService {
             try {
                 ComputedFieldUtil util = new ComputedFieldUtil();
                 Object o = util.evaluateExpression(expression, context);
+
+                // add 2025.07.29 计算完后同步更新到上下文
+                customFieldsContext.put(computedCustomField.getFieldName(), String.valueOf(o)); // 存储键值对信息作为上下文
+//                context.put("customFields", customFieldsContext);
+
                 result.add(new ItemCustomFieldValue(itemId, computedCustomField.getId(), String.valueOf(o)));
             } catch (Exception e) {
                 result.add(new ItemCustomFieldValue(itemId, computedCustomField.getId(), "运算失败(" + e.getMessage() + ")"));
@@ -178,5 +174,17 @@ public class CustomFieldService {
 //            }
         }
         return result;
+    }
+
+
+
+    public CustomField setEnabled(Long id, boolean isEnabled) {
+        CustomField customField = customFieldMapper.selectById(id);
+        if (customField != null) {
+            customField.setEnabled(isEnabled);
+            customFieldMapper.updateById(customField);
+            return customField;
+        }
+        return null;
     }
 }

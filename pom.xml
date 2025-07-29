@@ -4,7 +4,7 @@
 
   <groupId>com.example</groupId>
   <artifactId>things</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <packaging>jar</packaging>
 
   <name>things</name>
@@ -62,6 +62,13 @@
           <version>13.0</version>
           <scope>compile</scope>
       </dependency>
+
+    <dependency>
+      <groupId>com.github.xiaoymin</groupId>
+      <artifactId>knife4j-spring-boot-starter</artifactId>
+      <version>3.0.3</version>
+    </dependency>
+
   </dependencies>
 
   <build>

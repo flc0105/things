@@ -20,7 +20,7 @@ public class TimelineEventController {
 
     @PostMapping
     public void addEvent(@RequestBody TimelineEvent timelineEvent) {
-        timelineEventService.addEvent(timelineEvent.getItemId(), timelineEvent.getDate(), timelineEvent.getEvent());
+        timelineEventService.addEvent(timelineEvent.getItemId(), timelineEvent.getDate(), timelineEvent.getEventDescription(), timelineEvent.getEventType());
     }
 
     @DeleteMapping("/{id}")

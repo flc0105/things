@@ -14,11 +14,12 @@ public class TimelineEventService {
     @Autowired
     private TimelineEventMapper timelineEventMapper;
 
-    public void addEvent(Long itemId, String date, String eventDescription) {
+    public void addEvent(Long itemId, String date, String eventDescription, String eventType) {
         TimelineEvent timelineEvent = new TimelineEvent();
         timelineEvent.setItemId(itemId);
         timelineEvent.setDate(date);
-        timelineEvent.setEvent(eventDescription);
+        timelineEvent.setEventDescription(eventDescription);
+        timelineEvent.setEventType(eventType);
         timelineEventMapper.insert(timelineEvent);
     }
 
