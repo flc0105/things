@@ -78,8 +78,6 @@ public class CustomFieldService {
      * @return 更新后的自定义字段对象
      */
     public CustomField setEnabled(Long id, boolean isEnabled) {
-        // TODO: 如果字段没有启用，就直接不要计算，但是返回自定义字段的时候启用的和全部的需要分开，
-        //  启用的用于构建信息，全部的用于控制是否启用
         CustomField customField = customFieldMapper.selectById(id);
         if (customField != null) {
             customField.setEnabled(isEnabled);

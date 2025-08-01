@@ -8,6 +8,7 @@ import flc.things.entity.ItemCustomFieldValue;
 import flc.things.enums.CustomFieldType;
 import flc.things.mapper.CustomFieldMapper;
 import flc.things.mapper.ItemCustomFieldValueMapper;
+import flc.things.mapper.ItemMapper;
 import flc.things.util.ComputedFieldUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -25,6 +26,10 @@ public class ItemCustomFieldValueService {
 
     @Autowired
     private CustomFieldMapper customFieldMapper;
+
+
+    @Autowired
+    private ItemMapper itemMapper;
 
     @Autowired
     @Lazy
@@ -155,7 +160,13 @@ public class ItemCustomFieldValueService {
 
         // 将Map的键转换为String类型
         Map<String, List<String>> result = new HashMap<>();
-        groupedValuesMap.forEach((customFieldId, values) -> result.put(String.valueOf(customFieldId), new ArrayList<>(values)));
+//        groupedValuesMap.forEach((customFieldId, values) -> result.put(String.valueOf(customFieldId), new ArrayList<>(values)));
+        groupedValuesMap.forEach((customFieldId, values) -> {
+                    List<String> newValues = new ArrayList<>(values);
+                    newValues.add(0, null); // 在每个value加一个null值，用来查询没有设置该自定义字段的物品
+                    result.put(String.valueOf(customFieldId), newValues);
+                }
+        );
         return result;
     }
 
@@ -177,9 +188,20 @@ public class ItemCustomFieldValueService {
      * @return 物品列表
      */
     public List<Item> getItemsByCustomFieldIdAndValue(String customFieldId, String fieldValue) {
+        if (fieldValue == null || fieldValue.isEmpty()) {
+            // fieldValue 为空，查询没有关联 customFieldId 的 Item
+            return itemService.queryItems(new LambdaQueryWrapper<Item>()
+                    .notInSql(Item::getId,
+                            "SELECT item_id FROM item_custom_field_values WHERE custom_field_id = '" + customFieldId + "'"));
+//            return itemMapper.selectList(
+//                    new LambdaQueryWrapper<Item>()
+//                            .notInSql(Item::getId,
+//                                    "SELECT item_id FROM item_custom_field_values WHERE custom_field_id = '" + customFieldId + "'")
+//            );
+        }
         List<ItemCustomFieldValue> itemCustomFieldValues = itemCustomFieldValueMapper.selectList(new LambdaQueryWrapper<ItemCustomFieldValue>()
                 .eq(ItemCustomFieldValue::getCustomFieldId, customFieldId)
-                .eq(ItemCustomFieldValue::getValue, fieldValue)); //TODO: if icfv
+                .eq(ItemCustomFieldValue::getValue, fieldValue));
         return itemCustomFieldValues.stream()
                 .map(value -> getItemById(value.getItemId()).orElse(null))
                 .filter(Objects::nonNull)

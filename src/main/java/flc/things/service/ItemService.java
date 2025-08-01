@@ -1,6 +1,7 @@
 package flc.things.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import flc.things.entity.Item;
 import flc.things.mapper.ItemMapper;
@@ -105,6 +106,17 @@ public class ItemService extends BaseService<Item> {
         Item item = getOne(id);
         loadRelatedData(item);
         return Optional.of(item);
+    }
+
+    public List<Item> queryItems(LambdaQueryWrapper<Item> qw) {
+        if (qw == null) {
+            qw = new LambdaQueryWrapper<>();
+        }
+        qw.isNull(Item::getParentId);
+//        List<Item> items = itemMapper.selectList(qw);
+        List<Item> items = list(qw);
+        loadRelatedData(items);
+        return items;
     }
 
     public Optional<Item> getItemByIdNoIcfvs(Long id) {
