@@ -47,6 +47,12 @@ public class ItemCustomFieldValueService {
             );
             if (existingRecord != null) {
                 // 更新已存在的记录
+                if (icfv.getValue() == null || icfv.getValue().isEmpty()) {
+                    // 如果更新后字段为空，直接删除该字段
+                    int deleteCount = deleteItemCustomFieldValue(existingRecord.getId());
+                    System.out.println(deleteCount);
+                    continue;
+                }
                 existingRecord.setValue(icfv.getValue());
                 itemCustomFieldValueMapper.updateById(existingRecord);
             } else {
@@ -55,10 +61,17 @@ public class ItemCustomFieldValueService {
                 if (Objects.equals(customField.getFieldType(), CustomFieldType.CODE.getCode())) {
                     continue;
                 }
-                itemCustomFieldValueMapper.insert(icfv);
+                if (icfv.getValue() != null && !icfv.getValue().isEmpty()) {
+                    itemCustomFieldValueMapper.insert(icfv);
+                }
             }
         }
         return true;
+    }
+
+
+    public int deleteItemCustomFieldValue(Long icfvId) {
+        return itemCustomFieldValueMapper.delete(new LambdaQueryWrapper<ItemCustomFieldValue>().eq(ItemCustomFieldValue::getId, icfvId));
     }
 
     /**
@@ -167,17 +180,10 @@ public class ItemCustomFieldValueService {
         List<ItemCustomFieldValue> itemCustomFieldValues = itemCustomFieldValueMapper.selectList(new LambdaQueryWrapper<ItemCustomFieldValue>()
                 .eq(ItemCustomFieldValue::getCustomFieldId, customFieldId)
                 .eq(ItemCustomFieldValue::getValue, fieldValue)); //TODO: if icfv
-        List<Item> result = itemCustomFieldValues.stream()
+        return itemCustomFieldValues.stream()
                 .map(value -> getItemById(value.getItemId()).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-//        List<Item> result = new ArrayList<>();
-//        for (ItemCustomFieldValue value : itemCustomFieldValues) {
-//            Long itemId = value.getItemId();
-//            Optional<Item> itemOptional = getItemById(itemId);
-//            itemOptional.ifPresent(result::add);
-//        }
-        return result;
     }
 
 
