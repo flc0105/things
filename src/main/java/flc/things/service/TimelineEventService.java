@@ -1,5 +1,6 @@
 package flc.things.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import flc.things.entity.TimelineEvent;
 import flc.things.mapper.TimelineEventMapper;
@@ -27,7 +28,11 @@ public class TimelineEventService {
         timelineEventMapper.deleteById(eventId);
     }
 
-    public List<TimelineEvent> getTimelineEvents(Long itemId) {
+    public void deleteTimelineEventsByItemId(Long itemId) {
+        timelineEventMapper.delete(new LambdaQueryWrapper<TimelineEvent>().eq(TimelineEvent::getItemId, itemId));
+    }
+
+    public List<TimelineEvent> getTimelineEventsByItemId(Long itemId) {
         QueryWrapper<TimelineEvent> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("item_id", itemId);
         queryWrapper.orderByDesc("date");

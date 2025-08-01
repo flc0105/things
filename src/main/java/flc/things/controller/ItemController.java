@@ -37,6 +37,11 @@ public class ItemController {
 
     @GetMapping("/subItems/{id}")
     public ResponseEntity<List<Item>> getSubItems(@PathVariable Long id) {
-        return ResponseEntity.ok(itemService.getSubItems(id));
+        return ResponseEntity.ok(itemService.getSubItemsByItemId(id));
     }
+
+//    @PostMapping("/stat")
+//    public String stat(@RequestParam String expr) {
+//        return itemService.processItemData(expr);
+//    }
 }

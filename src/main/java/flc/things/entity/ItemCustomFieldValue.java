@@ -13,9 +13,10 @@ public class ItemCustomFieldValue {
     public ItemCustomFieldValue() {
     }
 
-    public ItemCustomFieldValue(Long itemId, Long customFieldId, String value) {
+    public ItemCustomFieldValue(Long itemId, Long customFieldId, String customFieldName, String value) {
         this.itemId = itemId;
         this.customFieldId = customFieldId;
+        this.customFieldName = customFieldName;
         this.value = value;
     }
 
@@ -27,6 +28,10 @@ public class ItemCustomFieldValue {
 
     @TableField("custom_field_id")
     private Long customFieldId;
+
+    // add 2025.07.29
+    @TableField(exist = false)
+    private String customFieldName;
 
     @TableField("value")
     private String value;

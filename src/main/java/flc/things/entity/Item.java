@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @TableName("items")
@@ -24,6 +25,9 @@ public class Item {
     private String name;
 
     private Double price;
+
+    @TableField(exist = false)
+    private Double totalPrice;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @TableField(value = "purchase_date")
@@ -56,10 +60,10 @@ public class Item {
     private List<TimelineEvent> timelineEvents;
 
     @TableField(exist = false)
-    private List<Item> subItems;
+    private List<ItemCustomFieldValue> itemCustomFieldValueList;
 
     @TableField(exist = false)
-    private List<Item> children;
+    private List<Item> subItems;
 
     @TableField(exist = false)
     private Double averageDailyPrice;
@@ -70,10 +74,8 @@ public class Item {
     public Long calcOwnershipDuration() {
         try {
             if (status.equals("SOLD")) {
-                // 如果状态为“出售”，计算从购买日期到时间轴上第一个（最新的）事件的天数
-                //TODO eventType为SALE
+                // 如果状态为“出售”，计算从购买日期到时间轴上最新的事件发生日之间的天数
                 if (timelineEvents != null && !timelineEvents.isEmpty()) {
-                    // 假设 TimelineEvent 有一个方法获取事件日期
                     LocalDate latestEventDate = LocalDate.parse(timelineEvents.get(0).getDate());
                     LocalDate purchaseDate = LocalDate.parse(this.purchaseDate);
                     Duration duration = Duration.between(purchaseDate.atStartOfDay(), latestEventDate.atStartOfDay());
@@ -103,6 +105,7 @@ public class Item {
     public Double getAverageDailyPrice() {
         try {
             Long duration = calcOwnershipDuration();
+            Double price = getPrice();
             // 确保购买日期不为空且价格大于0
             if (duration != null && price != null && price > 0) {
                 if (duration > 0) {
@@ -121,5 +124,14 @@ public class Item {
         }
     }
 
+    public Double getPrice() {
+        // 计算总价格（包括子物品）
+        if (getSubItems() != null && !getSubItems().isEmpty()) {
+            double totalPrice = price != null ? price : 0.0;
+            totalPrice += getSubItems().stream().mapToDouble(subItem -> subItem.getPrice() != null ? subItem.getPrice() : 0.0).sum();
+            return totalPrice;
+        }
+        return price;
+    }
 }
 

@@ -30,7 +30,7 @@ public class TimelineEventController {
 
     @GetMapping("/item/{id}")
     public ResponseEntity<List<TimelineEvent>> getTimelineEvent(@PathVariable Long id) {
-        return ResponseEntity.ok(timelineEventService.getTimelineEvents(id));
+        return ResponseEntity.ok(timelineEventService.getTimelineEventsByItemId(id));
     }
 
 //    @PostMapping("/init")
